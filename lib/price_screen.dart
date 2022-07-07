@@ -9,7 +9,22 @@ class PriceScreen extends StatefulWidget {
 }
 
 class _PriceScreenState extends State<PriceScreen> {
-  String selectedCurrency = 'USD';
+  String selectedCurrency = 'NZD';
+  double bitcoinValue = 0.0;
+  CoinData coinData = CoinData();
+
+  @override
+  initState() {
+    super.initState();
+    updateBitcoinData();
+  }
+
+  void updateBitcoinData() async {
+    var newValue = await coinData.getCoinData();
+    setState(() {
+      bitcoinValue = newValue;
+    });
+  }
 
   DropdownButton<String> androidDropdown() {
     List<DropdownMenuItem<String>> dropdownItems = [];
@@ -24,7 +39,9 @@ class _PriceScreenState extends State<PriceScreen> {
     return DropdownButton<String>(
       value: selectedCurrency,
       items: dropdownItems,
-      onChanged: (value) {
+      onChanged: (value) async {
+        updateBitcoinData();
+
         setState(() {
           selectedCurrency = value;
         });
@@ -39,21 +56,18 @@ class _PriceScreenState extends State<PriceScreen> {
     }
 
     return CupertinoPicker(
-      backgroundColor: Colors.lightBlue,
+      backgroundColor: Colors.orange,
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
-        print(selectedIndex);
+        updateBitcoinData();
+
+        setState() {
+          selectedCurrency = currenciesList[selectedIndex];
+          print('cupertino set state');
+        }
       },
       children: pickerItems,
     );
-  }
-
-  //TODO: Create a method here called getData() to get the coin data from coin_data.dart
-
-  @override
-  void initState() {
-    super.initState();
-    //TODO: Call getData() when the screen loads up.
   }
 
   @override
@@ -78,7 +92,7 @@ class _PriceScreenState extends State<PriceScreen> {
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
                   //TODO: Update the Text Widget with the live bitcoin data here.
-                  '1 BTC = ? USD',
+                  '1 BTC = ${bitcoinValue} $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,
